@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "parfile"
+version = "0.1.0"
+description = ""
+authors = ["Alex <kobzarchekg@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+icecream = "^2.1.3"
+customtkinter = "^5.2.2"
+rarfile = "^4.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.ruff]
+# Allow lines to be as long as 120 characters.
+line-length = 120
