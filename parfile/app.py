@@ -25,13 +25,13 @@ class Parfile(ct.CTk):
         self.tabs.grid(padx=20, pady=20, sticky="nsew")
 
         # Auto close app after 10 seconds (optional)
-        self.after(35000, self.quit)
+        self.after(25000, self.quit)
         # NOTE: Open 2 ntab by default
         # self.tabs.set("Configuration")
 
         # Configure grid for Files tab
         self.tabs.tab("Files").grid_columnconfigure(0, weight=1)
-        self.tabs.tab("Files").grid_columnconfigure(1, weight=0)
+        self.tabs.tab("Files").grid_rowconfigure(0, weight=1)
 
         # Create scrollable checkbox frame
         self.files_view = TabFiles(master=self.tabs.tab("Files"))

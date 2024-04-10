@@ -5,6 +5,8 @@ from cfg import cfg
 from pathlib import Path
 import concurrent.futures as mps
 from rarfile import RarFile
+import shutil
+import threading
 
 
 def fsize(file_size):
@@ -22,7 +24,6 @@ class TabFiles(ct.CTkScrollableFrame):
         super().__init__(master, **kwargs)
 
         self.selected = False
-        # self.progress_bars = {}
         self.files_ext = cfg.App.files_ext
         self.command = command
         self.files = {}
@@ -41,6 +42,7 @@ class TabFiles(ct.CTkScrollableFrame):
         for widget in self.winfo_children():
             widget.destroy()
 
+        # col = {}
         # Sort iems by name
         row = 0
         for file in files:
@@ -65,31 +67,38 @@ class TabFiles(ct.CTkScrollableFrame):
             if self.command is not None:
                 file_checkbox.configure(command=self.command)
 
-            # file_checkbox.grid(row=row, column=0, pady=(0, 10), sticky="nsew")
-            file_checkbox.grid(row=row, column=0, pady=(0, 10), sticky="w")
             # Add label for file size (optional)
             size_label = ct.CTkLabel(self, text=f"{file_size}", font=("Arial", 16), text_color="light green")
-            size_label.grid(row=row, column=1, padx=(10, 0), pady=(0, 10), sticky="e")
-            # Del button
-            btn_del = ct.CTkButton(self, text="Del", command=lambda file_data=file: self.del_button_event(file_data))
-            btn_del.grid(row=row, column=2, padx=(10, 0), pady=(0, 10), sticky="e")
-
-            row += 1
-            # Add Status info
-            pgs_lbl = ct.CTkLabel(self, text="", font=("Arial", 16), text_color="light green")
-            pgs_bar = ct.CTkProgressBar(self, orientation="horizontal", height=5)
+            # Add progress lbl
+            pgs_lbl = ct.CTkLabel(self, text="0/0", font=("Arial", 16), text_color="yellow")
+            # Add progress bar
+            # pgs_bar = ct.CTkProgressBar(self, orientation="horizontal", height=5)
+            pgs_bar = ct.CTkProgressBar(self, orientation="vertical", height=30,progress_color="cyan" )
             pgs_bar.set(0)
-            pgs_lbl.grid(row=row, column=0, padx=(10, 0), pady=(0, 10), sticky="w")
-            pgs_bar.grid(row=row, column=1, padx=(10, 0), pady=(0, 10), sticky="w")
-            row += 1
+            # Add Del button
+            btn_del = ct.CTkButton(
+                self, text="Del", width=25, command=lambda file_data=file: self.del_button_event(file_data)
+            )
+
+
+            # Configure position
+            # file_checkbox.grid(row=row, column=0, pady=(0, 10), sticky="nsew")
+            file_checkbox.grid(row=row, column=0, pady=(0, 10), sticky="w")
+            pgs_lbl.grid(row=row, column=1, padx=(10, 0), pady=(0, 10), sticky="e")
+            pgs_bar.grid(row=row, column=2, padx=(10, 0), pady=(0, 10), sticky="e")
+            size_label.grid(row=row, column=3, padx=(10, 0), pady=(0, 10), sticky="e")
+            btn_del.grid(row=row, column=4, padx=(10, 0), pady=(0, 10), sticky="e")
+
 
             self.files[file_name] = {
                 "path": file.as_posix(),
                 "checked": file_checkbox,
-                "progress": pgs_lbl,
-                "progress_bar": pgs_bar,
-                # "size": file.stat().st_size,
+                "pgs": pgs_lbl,
+                "pgs_bar": pgs_bar,
+                "name": file_name,
             }
+
+            row += 1
 
     def del_button_event(self, item):
         item.unlink()
@@ -119,20 +128,49 @@ class TabFiles(ct.CTkScrollableFrame):
 
         return result
 
+    def clean_tmp(self):
+        shutil.rmtree(cfg.Paths.tmp)
+        Path(cfg.Paths.tmp).mkdir(parents=True)
+
+    def update_progress(self, file_name, progress, progress_bar):
+        # Update progress label and bar
+        self.files[file_name]["pgs"].configure(text=progress)
+        self.files[file_name]["pgs_bar"].set(progress_bar)
+
+    def extract_file(self, file, progress_callback):
+        """Extracts a single RAR file and logs its parts."""
+        part_cnt = 0
+        with RarFile(file["path"]) as arj:
+            parts = self.mask_files(arj.namelist())
+            for part in parts:
+                part_cnt += 1
+                arj.extract(part, cfg.Paths.tmp)
+                progress = f"{part_cnt}/{len(parts)}"
+                # progress_bar = int(part_cnt / len(parts) * 100)
+                progress_bar = part_cnt / len(parts)
+                progress_callback(file["name"], progress, progress_bar)
+
     def run(self):
-        # Function to update progress dynamically
         files = [file_data for file_data in self.files.values() if file_data["checked"].get()]
+        self.clean_tmp()
+
+        # Define progress callback
+        def progress_callback(file_name, progress, progress_bar):
+            self.master.after(0, lambda: self.update_progress(file_name, progress, progress_bar))
+
+        threads = []
         for file in files:
-            file["progress_bar"].set(0)
-            part_cnt = 0
-            with RarFile(file["path"]) as arj:
-                parts = self.mask_files(arj.namelist())
-                file["progress"].configure(text=f"{len(parts)}")
-                for part in parts:
-                    part_cnt += 1
-                    file["progress_bar"].set(part_cnt / len(parts) * 100)
-                    file["progress"].configure(text=f"{part_cnt}/{len(parts)}")
-                    arj.extract(part, cfg.Paths.tmp)
+            thread = threading.Thread(target=self.extract_file, args=(file, progress_callback))
+            thread.start()
+            threads.append(thread)
+
+    def check_threads(self, threads):
+        """Check if all threads are finished, update GUI if necessary."""
+        if all(not thread.is_alive() for thread in threads):
+            return
+        else:
+            # Schedule check after 100 milliseconds
+            self.master.after(100, lambda: self.check_threads(threads))
 
 
 class TabFilesButtonsTop(ct.CTkFrame):

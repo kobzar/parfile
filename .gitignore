@@ -168,5 +168,7 @@ test.py
 z.py
 # Inore local data path
 files/*
+tests/*
 tmp/*
 cfg.py
+test/*
