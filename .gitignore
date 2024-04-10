@@ -170,5 +170,4 @@ z.py
 files/*
 tests/*
 tmp/*
-cfg.py
 test/*
