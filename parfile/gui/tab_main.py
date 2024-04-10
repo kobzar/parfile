@@ -3,7 +3,6 @@ from icecream import ic
 import customtkinter as ct
 from cfg import cfg
 from pathlib import Path
-import concurrent.futures as mps
 from rarfile import RarFile
 import shutil
 import threading
@@ -73,13 +72,12 @@ class TabFiles(ct.CTkScrollableFrame):
             pgs_lbl = ct.CTkLabel(self, text="0/0", font=("Arial", 16), text_color="yellow")
             # Add progress bar
             # pgs_bar = ct.CTkProgressBar(self, orientation="horizontal", height=5)
-            pgs_bar = ct.CTkProgressBar(self, orientation="vertical", height=30,progress_color="cyan" )
+            pgs_bar = ct.CTkProgressBar(self, orientation="vertical", height=30, progress_color="cyan")
             pgs_bar.set(0)
             # Add Del button
             btn_del = ct.CTkButton(
                 self, text="Del", width=25, command=lambda file_data=file: self.del_button_event(file_data)
             )
-
 
             # Configure position
             # file_checkbox.grid(row=row, column=0, pady=(0, 10), sticky="nsew")
@@ -89,13 +87,13 @@ class TabFiles(ct.CTkScrollableFrame):
             size_label.grid(row=row, column=3, padx=(10, 0), pady=(0, 10), sticky="e")
             btn_del.grid(row=row, column=4, padx=(10, 0), pady=(0, 10), sticky="e")
 
-
             self.files[file_name] = {
                 "path": file.as_posix(),
                 "checked": file_checkbox,
                 "pgs": pgs_lbl,
                 "pgs_bar": pgs_bar,
                 "name": file_name,
+                "btn_del": btn_del,
             }
 
             row += 1
@@ -151,8 +149,13 @@ class TabFiles(ct.CTkScrollableFrame):
                 progress_callback(file["name"], progress, progress_bar)
 
     def run(self):
+        """Starts the extraction process."""
+        # Disable buttons while process is RUnned
+
         files = [file_data for file_data in self.files.values() if file_data["checked"].get()]
         self.clean_tmp()
+        for file in files:
+            file["btn_del"].configure(state="disabled")
 
         # Define progress callback
         def progress_callback(file_name, progress, progress_bar):
@@ -164,9 +167,14 @@ class TabFiles(ct.CTkScrollableFrame):
             thread.start()
             threads.append(thread)
 
+        # Check threads after starting them
+        self.check_threads(threads)
+
     def check_threads(self, threads):
         """Check if all threads are finished, update GUI if necessary."""
         if all(not thread.is_alive() for thread in threads):
+            for file_data in self.files.values():
+                file_data["btn_del"].configure(state="normal")
             return
         else:
             # Schedule check after 100 milliseconds
