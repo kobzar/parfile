@@ -1,7 +1,7 @@
 from icecream import ic
 import customtkinter as ct
 from tkinter import filedialog
-from cfg import cfg, ROOT
+from misc import cfg, ROOT, log
 
 
 class TabConfig(ct.CTkFrame):
@@ -13,7 +13,7 @@ class TabConfig(ct.CTkFrame):
         self.mask_descr = "txt,pdf,jpg (by default: all files)"
         self.files_mask_lbl = ct.CTkLabel(self, text="Extracted files mask:", text_color="light blue", font=self.font)
         self.mask = ct.StringVar(value=cfg.App.mask_ext, name="mask")
-        self.files_mask_data = ct.CTkEntry( self, width=350, font=self.font)
+        self.files_mask_data = ct.CTkEntry(self, width=350, font=self.font)
         # Use description if mask isnt set
         if not cfg.App.mask_ext:
             self.files_mask_data.configure(textvariable=None, placeholder_text=self.mask_descr)
@@ -62,6 +62,8 @@ class TabConfig(ct.CTkFrame):
 
             item.set(file_path)
             cfg.save()
+            log.info(f"Path for {item._name} was saved.")
+            log.info(f"{item._name} >> {file_path}")
 
     def save_mask(self):
         """Save files mask"""
@@ -70,7 +72,8 @@ class TabConfig(ct.CTkFrame):
         # If field is empty show description
         if mask == "":
             self.files_mask_data.configure(textvariable=None)
-            self.files_mask_data.configure(placeholder_text=" as default",require_redraw=True)
+            self.files_mask_data.configure(placeholder_text=" as default", require_redraw=True)
             self.files_mask_data.update()
 
         cfg.save()
+        log.info(f"Files mask was saved: {mask}")

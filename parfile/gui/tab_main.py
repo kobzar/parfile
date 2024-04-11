@@ -1,21 +1,11 @@
 # tab_main.py
 from icecream import ic
 import customtkinter as ct
-from cfg import cfg
+from misc import cfg, fsize, log
 from pathlib import Path
 from rarfile import RarFile
 import shutil
 import threading
-
-
-def fsize(file_size):
-    # Format size based on value
-    if file_size < (1024 * 1024):  # Less than 1 MB
-        size = f"{file_size:.2f} KB"
-    else:
-        size = f"{file_size // (1024 * 1024):.2f} MB"
-
-    return size
 
 
 class TabFiles(ct.CTkScrollableFrame):
@@ -99,11 +89,13 @@ class TabFiles(ct.CTkScrollableFrame):
             row += 1
 
     def del_button_event(self, item):
+        """Delete selected file"""
         item.unlink()
         self.refresh()
+        log.info(f"File {item.name} was deleted")
 
     def select(self):
-        # Select/uselect all files
+        """Select/uselect all files"""
         self.selected = not self.selected
         for file_data in self.files.values():
             if self.selected:
@@ -138,22 +130,25 @@ class TabFiles(ct.CTkScrollableFrame):
     def extract_file(self, file, progress_callback):
         """Extracts a single RAR file and logs its parts."""
         part_cnt = 0
-        with RarFile(file["path"]) as arj:
-            parts = self.mask_files(arj.namelist())
-            for part in parts:
-                part_cnt += 1
-                arj.extract(part, cfg.Paths.tmp)
-                progress = f"{part_cnt}/{len(parts)}"
-                # progress_bar = int(part_cnt / len(parts) * 100)
-                progress_bar = part_cnt / len(parts)
-                progress_callback(file["name"], progress, progress_bar)
+        try:
+            with RarFile(file["path"]) as arj:
+                parts = self.mask_files(arj.namelist())
+                for part in parts:
+                    part_cnt += 1
+                    arj.extract(part, cfg.Paths.tmp)
+                    log.info(f"Extracted {file['name']} >> {part}")
+                    progress = f"{part_cnt}/{len(parts)}"
+                    progress_bar = part_cnt / len(parts)
+                    progress_callback(file["name"], progress, progress_bar)
+        except Exception as e:
+            log.error(e)
 
     def run(self):
         """Starts the extraction process."""
-        # Disable buttons while process is RUnned
-
         files = [file_data for file_data in self.files.values() if file_data["checked"].get()]
+        # Clear TMP dir before run
         self.clean_tmp()
+        # Disable Del buttons for selected files
         for file in files:
             file["btn_del"].configure(state="disabled")
 
@@ -161,6 +156,7 @@ class TabFiles(ct.CTkScrollableFrame):
         def progress_callback(file_name, progress, progress_bar):
             self.master.after(0, lambda: self.update_progress(file_name, progress, progress_bar))
 
+        # Start threads
         threads = []
         for file in files:
             thread = threading.Thread(target=self.extract_file, args=(file, progress_callback))
@@ -173,6 +169,7 @@ class TabFiles(ct.CTkScrollableFrame):
     def check_threads(self, threads):
         """Check if all threads are finished, update GUI if necessary."""
         if all(not thread.is_alive() for thread in threads):
+            # Enable Del buttons for selected files
             for file_data in self.files.values():
                 file_data["btn_del"].configure(state="normal")
             return
@@ -219,6 +216,7 @@ class TabFilesButtonsBottom(ct.CTkFrame):
         # Place the bottom buttons frame in the main frame using grid
         self.buttons_frame.grid(row=1, column=0, sticky="nsew")  # Optional: add padding
 
+        # INFO: Bind Esc key to exit
         # Bind Esc key to exit
         self.master.bind("<Escape>", lambda _: self.quit())
 

@@ -20,4 +20,6 @@ def extract_with_progress(fpath, fdist, ext=["*"]):
         print("Extraction completed.")
 
 
-extract_with_progress(FILE, TMP, ext=["txt"])
+# extract_with_progress(FILE, TMP, ext=["txt"])
+
+ic(rarfile.ToolSetup.check)

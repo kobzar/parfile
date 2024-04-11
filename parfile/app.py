@@ -3,7 +3,8 @@ from icecream import ic
 import customtkinter as ct
 from gui.tab_main import TabFiles, TabFilesButtonsTop, TabFilesButtonsBottom
 from gui.tab_config import TabConfig
-from cfg import cfg
+from misc import cfg, log, ROOT
+# from pathlib import Path
 
 
 class Parfile(ct.CTk):
@@ -25,7 +26,7 @@ class Parfile(ct.CTk):
         self.tabs.grid(padx=20, pady=20, sticky="nsew")
 
         # Auto close app after 10 seconds (optional)
-        self.after(25000, self.quit)
+        # self.after(25000, self.quit)
         # NOTE: Open 2 ntab by default
         # self.tabs.set("Configuration")
 
@@ -49,13 +50,21 @@ class Parfile(ct.CTk):
         self.config_view = TabConfig(master=self.tabs.tab("Configuration"))
         self.config_view.grid(row=0, column=0, padx=15, pady=15, sticky="nsew")
 
-    def label_button_frame_event(self, item):
-        print(f"label button frame clicked: {item}")
+    # def label_button_frame_event(self, item):
+    #     print(f"label button frame clicked: {item}")
+
 
 def start():
     ct.set_appearance_mode("dark")
     app = Parfile()
     app.mainloop()
 
+
 if __name__ == "__main__":
+    # Create config if not exists
+    config = ROOT / "config.ini"
+    if not config.is_file():
+        cfg.save()
+        log.info("Created config file")
+    # Start app
     start()
