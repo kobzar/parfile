@@ -171,6 +171,7 @@ files/*
 tests/*
 tmp/*
 test/*
+logs/*
 
 # OS generated files #
 ######################

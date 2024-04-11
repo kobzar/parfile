@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "parfile"
-version = "0.1.0"
-description = ""
+version = "1.0.0"
+description = "GUI app for extract files from RAR files by mask"
 authors = ["Alex <kobzarchekg@gmail.com>"]
 readme = "README.md"
 

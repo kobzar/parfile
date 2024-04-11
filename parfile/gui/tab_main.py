@@ -119,6 +119,7 @@ class TabFiles(ct.CTkScrollableFrame):
         return result
 
     def clean_tmp(self):
+        """Clean tmp folder"""
         shutil.rmtree(cfg.Paths.tmp)
         Path(cfg.Paths.tmp).mkdir(parents=True)
 
@@ -196,9 +197,43 @@ class TabFilesButtonsTop(ct.CTkFrame):
         self.button_select.grid(row=1, column=0, padx=5, pady=5)
         self.button_run.grid(row=2, column=0, padx=5, pady=5)
 
+        # Parse button
+        self.button_parse = ct.CTkButton(self.top_buttons_frame, text="Parse", command=self.parse)
+        self.button_parse.grid(row=3, column=0, padx=5, pady=5)
         # Place the top buttons frame in the main frame using grid
         self.top_buttons_frame.grid(row=0, column=0, padx=5, pady=5, sticky="n")
 
+    def parse(self):
+        result = set()
+        result_path = Path(cfg.App.data) / "result.txt"
+        files = Path(cfg.Paths.tmp).rglob("*.txt")
+        if files:
+            for file in files:
+                try:
+                    with open(file, "r") as fdata:
+                        for line in fdata:
+                            try:
+                                words = line.strip().split()
+                                for word in words:
+                                    if len(word) >= 8:
+                                        result.add(word)
+                            except Exception as e:
+                                log.warn(f"Can't parse {line}")
+
+                except Exception as e:
+                    log.error(f"Can't open {file}")
+                    log.error(e)
+        else:
+            log.info("No files to parse")
+
+        log.info("Finish to parse files")
+
+        #Save data
+        with open(result_path, "w") as f:
+            for word in result:
+                f.write(word + "\n")
+
+        log.info(f"Results saved in to file {result_path}")
 
 class TabFilesButtonsBottom(ct.CTkFrame):
     def __init__(self, master, **kwargs):
@@ -234,7 +269,6 @@ class TabFilesButtonsBottom(ct.CTkFrame):
         """Closes the app."""
         # Save last position and windows size
         self.last_view()
-
         self.master.destroy()  # Close the window
 
 
