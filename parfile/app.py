@@ -4,7 +4,6 @@ import customtkinter as ct
 from gui.tab_main import TabFiles, TabFilesButtonsTop, TabFilesButtonsBottom
 from gui.tab_config import TabConfig
 from misc import cfg, log, ROOT
-# from pathlib import Path
 
 
 class Parfile(ct.CTk):
@@ -13,8 +12,10 @@ class Parfile(ct.CTk):
 
         self.height = cfg.App.height
         self.width = cfg.App.width
+        self.pos_x = cfg.App.pos_x
+        self.pos_y = cfg.App.pos_y
         self.title("Files Parser")
-        self.geometry(f"{self.width}x{self.height}+2400+850")
+        self.geometry(f"{self.width}x{self.height}+{self.pos_x}+{self.pos_y}")
         # Make Tab view resizable
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
@@ -49,9 +50,6 @@ class Parfile(ct.CTk):
         # Create configuration view
         self.config_view = TabConfig(master=self.tabs.tab("Configuration"))
         self.config_view.grid(row=0, column=0, padx=15, pady=15, sticky="nsew")
-
-    # def label_button_frame_event(self, item):
-    #     print(f"label button frame clicked: {item}")
 
 
 def start():

@@ -37,6 +37,8 @@ class Paths:
 class App:
     width: int = 750
     height: int = 500
+    pos_x: int = 0
+    pos_y: int = 0
     auto_save: bool = True
     files_ext: str = "rar"
     mask_ext: list[str] = dfield(default_factory=lambda: [])
@@ -46,6 +48,8 @@ class App:
     _descr: InitVar[Dict[str, str]] = {
         "width": "Window width",
         "height": "Window height",
+        "pos_x": "Window position X",
+        "pos_y": "Window position Y",
         "auto_save": "Automatically save path's changes",
         "files_ext": "Type of archive files to work",
         "mask_ext": "Types of files to extract from archive",

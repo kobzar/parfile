@@ -220,7 +220,21 @@ class TabFilesButtonsBottom(ct.CTkFrame):
         # Bind Esc key to exit
         self.master.bind("<Escape>", lambda _: self.quit())
 
+    def last_view(self):
+        # Get width and height
+        cfg.App.width = self.master.winfo_width()
+        cfg.App.height = self.master.winfo_height()
+        # Get x and y position (coordinates)
+        cfg.App.pos_x = self.master.winfo_x()
+        cfg.App.pos_y = self.master.winfo_y()
+        # Save data
+        cfg.save()
+
     def quit(self):
+        """Closes the app."""
+        # Save last position and windows size
+        self.last_view()
+
         self.master.destroy()  # Close the window
 
 
