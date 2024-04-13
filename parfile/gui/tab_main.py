@@ -197,57 +197,8 @@ class TabFilesButtonsTop(ct.CTkFrame):
         self.button_select.grid(row=1, column=0, padx=5, pady=5)
         self.button_run.grid(row=2, column=0, padx=5, pady=5)
 
-        # Parse button
-        self.button_parse = ct.CTkButton(self.top_buttons_frame, text="Parse", command=self.parse)
-        self.button_parse.grid(row=3, column=0, padx=5, pady=5)
         # Place the top buttons frame in the main frame using grid
         self.top_buttons_frame.grid(row=0, column=0, padx=5, pady=5, sticky="n")
-
-    def start_parse_thread(self):
-        # Disable parse button while parsing
-        self.button_parse.configure(state="disabled")
-        # Create a new thread to run the parse method
-        parse_thread = threading.Thread(target=self.parse)
-        parse_thread.start()
-
-    def enable_parse_button(self):
-        # Enable parse button after parsing is finished
-        self.button_parse.configure(state="normal")
-
-    def parse(self):
-        result = set()
-        result_path = Path(cfg.App.data) / "result.txt"
-        files = Path(cfg.Paths.tmp).rglob("*.txt")
-        if files:
-            for file in files:
-                try:
-                    with open(file, "r") as fdata:
-                        for line in fdata:
-                            try:
-                                words = line.strip().split()
-                                for word in words:
-                                    if len(word) >= 8:
-                                        result.add(word)
-                            except Exception as e:
-                                log.warn(f"Can't parse {line}")
-
-                except Exception as e:
-                    log.error(f"Can't open {file}")
-                    log.error(e)
-        else:
-            log.info("No files to parse")
-
-        log.info("Finish to parse files")
-
-        # Save data
-        with open(result_path, "w") as f:
-            for word in result:
-                f.write(word + "\n")
-
-        log.info(f"Results saved in to file {result_path}")
-
-        # Enable parse button after parsing is finished
-        self.enable_parse_button()
 
 
 class TabFilesButtonsBottom(ct.CTkFrame):
