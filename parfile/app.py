@@ -14,7 +14,7 @@ class Parfile(ct.CTk):
         self.width = cfg.App.width
         self.pos_x = cfg.App.pos_x
         self.pos_y = cfg.App.pos_y
-        self.title("Files Parser")
+        self.title("RAR Files Parser")
         self.geometry(f"{self.width}x{self.height}+{self.pos_x}+{self.pos_y}")
         # Make Tab view resizable
         self.grid_rowconfigure(0, weight=1)
