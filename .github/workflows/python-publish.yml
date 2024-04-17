@@ -39,7 +39,7 @@ jobs:
           poetry run pyinstaller --onefile --windowed --icon=media/icon.ico --add-data "parfile/gui:parfile/gui" parfile/app.py --name parfile
 
       - name: Upload artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: executable
-        path: ./dist/parfile.exe  # Adjust the path to your executable file
+        uses: actions/upload-artifact@v2
+        with:
+          name: executable
+          path: ./dist/parfile.exe  # Adjust the path to your executable file
