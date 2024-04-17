@@ -1,9 +1,8 @@
 # app.py
-from icecream import ic
 import customtkinter as ct
-from gui.tab_main import TabFiles, TabFilesButtonsTop, TabFilesButtonsBottom
-from gui.tab_config import TabConfig
-from misc import cfg, log, ROOT
+from parfile.gui.tab_main import TabFiles, TabFilesButtonsTop, TabFilesButtonsBottom
+from parfile.gui.tab_config import TabConfig
+from parfile.misc import cfg, log, ROOT
 
 
 class Parfile(ct.CTk):
@@ -53,16 +52,16 @@ class Parfile(ct.CTk):
 
 
 def start():
+    # Create config if not exists
+    config = ROOT / "config.ini"
+    if not config.is_file():
+        cfg.save()
+        log.info("Created config file")
     ct.set_appearance_mode("dark")
     app = Parfile()
     app.mainloop()
 
 
 if __name__ == "__main__":
-    # Create config if not exists
-    config = ROOT / "config.ini"
-    if not config.is_file():
-        cfg.save()
-        log.info("Created config file")
     # Start app
     start()

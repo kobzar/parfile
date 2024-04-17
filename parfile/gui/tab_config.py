@@ -1,7 +1,6 @@
-from icecream import ic
 import customtkinter as ct
 from tkinter import filedialog
-from misc import cfg, ROOT, log
+from parfile.misc import cfg, ROOT, log
 
 
 class TabConfig(ct.CTkFrame):
@@ -77,3 +76,7 @@ class TabConfig(ct.CTkFrame):
 
         cfg.save()
         log.info(f"Files mask was saved: {mask}")
+
+
+if __name__ == "__main__":
+    pass

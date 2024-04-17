@@ -1,7 +1,6 @@
 # tab_main.py
-from icecream import ic
 import customtkinter as ct
-from misc import cfg, fsize, log
+from parfile.misc import cfg, fsize, log
 from pathlib import Path
 from rarfile import RarFile
 import shutil
@@ -24,9 +23,8 @@ class TabFiles(ct.CTkScrollableFrame):
 
     def refresh(self):
         # Get currently selected files
-        selected_files = [file_name for file_name, data in self.files.items() if data["checked"].get()]
-
         files = sorted(Path(cfg.App.data).glob(f"*.{self.files_ext}"), key=lambda file: file.name)
+        selected_files = [file_name for file_name, data in self.files.items() if data["checked"].get()]
         # Flush
         for widget in self.winfo_children():
             widget.destroy()
@@ -90,7 +88,10 @@ class TabFiles(ct.CTkScrollableFrame):
 
     def del_button_event(self, item):
         """Delete selected file"""
+        # Delete file
         item.unlink()
+        # Delete from file list
+        self.files.pop(item.name)
         self.refresh()
         log.info(f"File {item.name} was deleted")
 
@@ -150,8 +151,8 @@ class TabFiles(ct.CTkScrollableFrame):
         # Clear TMP dir before run
         self.clean_tmp()
         # Disable Del buttons for selected files
-        for file in files:
-            file["btn_del"].configure(state="disabled")
+        # for file in files:
+        #     file["btn_del"].configure(state="disabled")
 
         # Define progress callback
         def progress_callback(file_name, progress, progress_bar):
@@ -160,6 +161,7 @@ class TabFiles(ct.CTkScrollableFrame):
         # Start threads
         threads = []
         for file in files:
+            file["btn_del"].configure(state="disabled")
             thread = threading.Thread(target=self.extract_file, args=(file, progress_callback))
             thread.start()
             threads.append(thread)
