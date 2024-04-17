@@ -34,15 +34,8 @@ jobs:
 
       - name: Build Windows executable
         run: |
-          poetry run pyinstaller \
-            --onefile \
-            --windowed \
-            --name "parfile" \
-            --add-data "parfile/media;parfile/media" \
-            --add-data "parfile/gui;." \
-            -i "parfile/media/icon.ico" \
-            parfile/app.py
-          
+          poetry run pyinstaller --onefile --windowed --icon=media/icon.ico --add-data "parfile/gui:parfile/gui" parfile/app.py --name="parfile"
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
