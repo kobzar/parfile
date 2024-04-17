@@ -10,46 +10,22 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      #----------------------------------------------
-      #       check-out repo and set-up python
-      #----------------------------------------------
-      - name: Check out repository
-        uses: actions/checkout@v4
-      #----------------------------------------------
-      #  -----  install & configure poetry  -----
-      #----------------------------------------------
-      - name: Set up python ${{ matrix.python-version }}
-        id: setup-python
-        uses: actions/setup-python@v5
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
         with:
-          python-version: ${{ matrix.python-version }}
-          # cache: poetry
+          python-version: 3.x
+
       - name: Install Poetry
         run: |
           pipx install poetry
 
-      -name: Check environment
+      - name: Check enviroment
         run: |
-          python --version
+          python -V
           poetry --version
 
-      # - name: Install dependencies
-      #   run: poetry install
-      #
-      # - name: Build Windows executable
-      #   run: |
-      #     poetry run pyinstaller --onefile --icon=media/icon.ico --add-data "parfile/gui;parfile/gui" parfile/app.py
-      #
-      # - name: Create Release
-      #   id: create_release
-      #   uses: actions/create-release@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     tag_name: v1.0.0  # Set your desired tag name
-      #     release_name: Release 1.0.0  # Set your desired release name
-      #     body: |
-      #       Windows release
-      #
-      #     draft: false
-      #     prerelease: false
+
+
