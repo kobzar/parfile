@@ -36,6 +36,16 @@ jobs:
         run: |
           poetry run pyinstaller --onefile --windowed --icon=media/icon.ico --add-data "parfile/gui:parfile/gui" parfile/app.py --name parfile
 
+      # - name: Upload Release Asset
+      #   uses: actions/upload-release-asset@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+      #     asset_path: parfile/dist/parfile.exe  # Adjust the path to your exe file
+      #     asset_name: parfile.exe
+      #     asset_content_type: application/octet-stream
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -49,14 +59,3 @@ jobs:
 
           draft: false
           prerelease: false
-
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: .dist/parfile.exe  # Adjust the path to your exe file
-          asset_name: parfile.exe
-          asset_content_type: application/octet-stream
-
