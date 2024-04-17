@@ -47,14 +47,9 @@ jobs:
           draft: true  # Set to true to create a draft release (optional)
           prerelease: false  # Set to true for a pre-release (optional)
 
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
+      - uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          # Get the upload URL from the optional create release step
-          upload_url: ${{ steps.create_release.outputs.upload_url }}   # Corrected line
-          asset_path: ./dist/parfile.exe
-          asset_name: parfile.exe
-          asset_content_type: application/octet-stream
-
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
