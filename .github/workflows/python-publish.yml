@@ -36,13 +36,35 @@ jobs:
         run: |
           poetry run pyinstaller --onefile --windowed --icon=media/icon.ico --add-data "parfile/gui:parfile/gui" parfile/app.py --name parfile
 
+      - name: Create Release (Optional)  # Create a draft release (optional)
+        uses: nDrizzle/github-action-create-release@v1  # Optional action
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.sha }}  # Use commit SHA for tag (optional)
+          release_name: "Automatic Release (built on ${{ github.sha }})"  # Descriptive release name (optional)
+          body: "Built from commit ${{ github.sha }}"  # Optional release description (optional)
+          draft: true  # Set to true to create a draft release (optional)
+          prerelease: false  # Set to true for a pre-release (optional)
+
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} 
+          # Get the upload URL from the optional create release step
+          upload_url: ${{ steps.create_release.outputs.upload_url }}   # Corrected line
           asset_path: ./dist/parfile.exe
           asset_name: parfile.exe
           asset_content_type: application/octet-stream
 
+      # - name: Upload Release Asset
+      #   uses: actions/upload-release-asset@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     upload_url: ${{ steps.create_release.outputs.upload_url }} 
+      #     asset_path: ./dist/parfile.exe
+      #     asset_name: parfile.exe
+      #     asset_content_type: application/octet-stream
+      #
