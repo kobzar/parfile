@@ -34,15 +34,14 @@ jobs:
 
       - name: Build Windows executable
         run: |
-          poetry export -f wheel  # Create wheel files for dependencies
-          pyinstaller \
+          poetry run pyinstaller \
             --onefile \
-            --windowed \  # Add if your application requires a window
+            --windowed \
             --name "parfile" \
             --add-data "parfile/media;parfile/media" \
             --add-data "parfile/gui;." \
             -i "parfile/media/icon.ico" \
-            parfile/app.py  # Assuming your main script is app.py
+            parfile/app.py
           
       - name: Create Release
         id: create_release
