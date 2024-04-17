@@ -24,15 +24,6 @@ Windows users must add WinRAR to the PATH environment variable.
 ### Configuration
 
 ![main.png](media/config.png)
-### Sample
-
-<iframe width="700" height="500" 
-src="https://www.youtube.com/embed/NYT5YNyylAI" 
-title="YouTube video player" frameborder="0" 
-allow="accelerometer; autoplay; clipboard-write; encrypted-media;
-gyroscope; picture-in-picture;
-web-share"
-allowfullscreen></iframe>
 
 ### Installation:
 
