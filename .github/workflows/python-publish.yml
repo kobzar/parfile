@@ -1,6 +1,7 @@
 
 name: Build and Release Windows Executable
 
+
 on:
   push:
     branches:
@@ -11,18 +12,31 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
         with:
-          python-version: "3.11"
-      - uses: Gr1N/setup-poetry@v8
-      - run: poetry --version
+          python-version: 3.12
+
+      - name: Install Poetry
+        run: |
+          pipx install poetry
+
+      - name: Check enviroment
+        run: |
+          python -V
+          poetry --version
+
       - name: Install dependencies
-        run: poetry install
+        run: |
+          poetry install
+          poetry add pyinstaller
 
       - name: Build Windows executable
         run: |
-          poetry run pyinstaller --onefile --windowed --icon=media/icon.ico --add-data "parfile/gui;parfile/gui" parfile/app.py --name parfile
+          poetry run pyinstaller --onefile --windowed --icon=media/icon.ico --add-data "parfile/gui:parfile/gui" parfile/app.py --name parfile
 
       - name: Create Release
         id: create_release
@@ -33,7 +47,7 @@ jobs:
           tag_name: v1.0.0  # Set your desired tag name
           release_name: Release 1.0.0  # Set your desired release name
           body: |
-            Describe release here.
+            Describe your release here.
 
           draft: false
           prerelease: false
@@ -48,44 +62,3 @@ jobs:
           asset_name: parfile.exe
           asset_content_type: application/octet-stream
 
-# on:
-#   push:
-#     branches:
-#       - main
-#
-# jobs:
-#   build-and-release:
-#     runs-on: windows-latest
-#
-#     steps:
-#       - name: Checkout code
-#         uses: actions/checkout@v2
-#
-#       - name: Set up Python
-#         uses: actions/setup-python@v2
-#         with:
-#           python-version: 3.x
-#
-#       - name: Install Poetry
-#         run: |
-#           pipx install poetry
-#
-#       - name: Check enviroment
-#         run: |
-#           python -V
-#           poetry --version
-#
-#       - name: Install dependencies
-#         run: |
-#           poetry install
-#           poetry add pyinstaller
-#
-#       - name: Build Windows executable
-#         run: |
-#           poetry run pyinstaller --onefile --windowed --icon=media/icon.ico --add-data "parfile/gui:parfile/gui" parfile/app.py --name parfile
-#
-#       - name: Upload Build Artifact
-#         uses: actions/upload-artifact@v3
-#         with:
-#           name: windows-executable
-#           path: dist/*.exe  # Upload all executables in the dist directory
