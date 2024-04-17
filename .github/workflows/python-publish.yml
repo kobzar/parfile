@@ -34,8 +34,16 @@ jobs:
 
       - name: Build Windows executable
         run: |
-          poetry run pyinstaller --onefile --icon=media/icon.ico --add-data "parfile/gui;parfile/gui" parfile/app.py
-
+          poetry export -f wheel  # Create wheel files for dependencies
+          pyinstaller \
+            --onefile \
+            --windowed \  # Add if your application requires a window
+            --name "parfile" \
+            --add-data "parfile/media;parfile/media" \
+            --add-data "parfile/gui;." \
+            -i "parfile/media/icon.ico" \
+            parfile/app.py  # Assuming your main script is app.py
+          
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -56,7 +64,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./parfile/dist/parfile.exe  # Adjust the path to your exe file
+          asset_path: .dist/parfile.exe  # Adjust the path to your exe file
           asset_name: parfile.exe
           asset_content_type: application/octet-stream
 
