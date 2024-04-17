@@ -1,0 +1,48 @@
+name: Build and Release Windows Executable
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+
+      - name: Install Poetry
+        run: |
+          Invoke-WebRequest -Uri https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py -OutFile get-poetry.py
+          .\get-poetry.py
+          $env:PATH="$env:USERPROFILE\.poetry\bin;$env:PATH"
+          poetry --version
+
+      - name: Install dependencies
+        run: poetry install
+
+      - name: Build Windows executable
+        run: |
+          poetry run pyinstaller --onefile --icon=media/icon.ico --add-data "parfile/gui;parfile/gui" parfile/app.py
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v1.0.0  # Set your desired tag name
+          release_name: Release 1.0.0  # Set your desired release name
+          body: |
+            Describe your release here.
+
+          draft: false
+          prerelease: false
+
