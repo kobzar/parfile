@@ -6,10 +6,11 @@ authors = ["Alex <kobzarchekg@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "~3.12"
 customtkinter = "^5.2.2"
 rarfile = "^4.1"
 rich = "^13.7.1"
+pyinstaller = "^6.6.0"
 
 
 [build-system]

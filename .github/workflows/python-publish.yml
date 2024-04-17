@@ -28,24 +28,26 @@ jobs:
           poetry --version
 
       - name: Install dependencies
-        run: poetry install
+        run: |
+          poetry install
+          poetry add pyinstaller
 
-      # - name: Build Windows executable
-      #   run: |
-      #     poetry run pyinstaller --onefile --icon=media/icon.ico --add-data "parfile/gui;parfile/gui" parfile/app.py
-      #
-      # - name: Create Release
-      #   id: create_release
-      #   uses: actions/create-release@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     tag_name: v1.0.0  # Set your desired tag name
-      #     release_name: Release 1.0.0  # Set your desired release name
-      #     body: |
-      #       Describe your release here.
-      #
-      #     draft: false
-      #     prerelease: false
+      - name: Build Windows executable
+        run: |
+          poetry run pyinstaller --onefile --icon=media/icon.ico --add-data "parfile/gui;parfile/gui" parfile/app.py
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v1.0.0  # Set your desired tag name
+          release_name: Release 1.0.0  # Set your desired release name
+          body: |
+            Describe your release here.
+
+          draft: false
+          prerelease: false
 
 
