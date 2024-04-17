@@ -5,39 +5,78 @@ on:
     branches:
       - main
 
+on:
+  push:
+    branches: [ main ]
+
 jobs:
-  build-and-release:
+  build:
     runs-on: windows-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.x
+      - uses: actions/checkout@v3
 
       - name: Install Poetry
-        run: |
-          pipx install poetry
-
-      - name: Check enviroment
-        run: |
-          python -V
-          poetry --version
-
-      - name: Install dependencies
-        run: |
-          poetry install
-          poetry add pyinstaller
-
-      - name: Build Windows executable
-        run: |
-          poetry run pyinstaller --onefile --windowed --icon=media/icon.ico --add-data "parfile/gui:parfile/gui" parfile/app.py --name parfile
-
-      - name: Upload Build Artifact
-        uses: actions/upload-artifact@v3
+        uses: siom79/poetry-installer@v1.1.8
         with:
-          name: windows-executable
-          path: dist/*.exe  # Upload all executables in the dist directory
+          poetry-version: '1.1.13'
+
+      - name: Install Dependencies
+        run: poetry install
+
+      - name: Build Executables
+        run: |
+          poetry export -f wheel  # Create wheel files for dependencies
+          for script in src/*.py; do
+            pyinstaller \
+              --onefile \
+              --windowed \  # Add if your scripts require windows
+              --add-data "parfile/media;parfile/media" \
+              --add-data "parfile/gui;." \
+              -i "parfile/media/icon.ico" \
+              "$script"
+          done
+
+      - name: Upload Release Assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.releases.upload_url }}  # Get upload URL from create release step
+          asset_name: ${{ files.GLOB('dist/*.exe') }}  # Upload all executables in dist directory
+
+# jobs:
+#   build-and-release:
+#     runs-on: windows-latest
+#
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v2
+#
+#       - name: Set up Python
+#         uses: actions/setup-python@v2
+#         with:
+#           python-version: 3.x
+#
+#       - name: Install Poetry
+#         run: |
+#           pipx install poetry
+#
+#       - name: Check enviroment
+#         run: |
+#           python -V
+#           poetry --version
+#
+#       - name: Install dependencies
+#         run: |
+#           poetry install
+#           poetry add pyinstaller
+#
+#       - name: Build Windows executable
+#         run: |
+#           poetry run pyinstaller --onefile --windowed --icon=media/icon.ico --add-data "parfile/gui:parfile/gui" parfile/app.py --name parfile
+#
+#       - name: Upload Build Artifact
+#         uses: actions/upload-artifact@v3
+#         with:
+#           name: windows-executable
+#           path: dist/*.exe  # Upload all executables in the dist directory
