@@ -5,7 +5,7 @@ This GUI application is designed to facilitate the extraction of files from RAR 
 
 ### Features:
 
-1. Work on Windows, Linus and MacOS systems.
+1. Work on Windows, Linux and MacOS systems.
 2. Extracts files from RAR archives based on the user-defined criteria.
 
 ### Requirements:
@@ -50,7 +50,7 @@ Windows users must add WinRAR to the PATH environment variable.
 
    ```
 4.Use binnary app
-(coming soon)
+[Releases](https://github.com/kobzarchekg/parfile/releases)
 
 ### Contributors:
 

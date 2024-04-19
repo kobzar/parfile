@@ -1,10 +1,17 @@
 name: Build and Deploy
 
+# on:
+#   push:
+#     branches:
+#       - main # Adjust if your main branch has a different name
+#   pull_request:
+
 on:
-  push:
-    branches:
-      - main # Adjust if your main branch has a different name
-  pull_request:
+  workflow_dispatch:
+    inputs:
+      manual_trigger:
+        description: 'Trigger the workflow manually'
+        required: true
 
 jobs:
   build:
