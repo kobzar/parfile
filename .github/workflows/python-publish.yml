@@ -8,30 +8,37 @@ on:
 jobs:
   build-and-release:
     runs-on: windows-latest
-    strategy:
-      matrix:
-        python-version: ["3.12"]
 
     steps:
-      - uses: actions/checkout@v3
-      - name: Install Poetry
-        run: pipx install poetry
-      - name: Set up Python ${{ matrix.python-version }}
+      - uses: actions/checkout@v4
+      - name: Install Python
         uses: actions/setup-python@v4
+        # see details (matrix, python-version, python-version-file, etc.)
+        # https://github.com/actions/setup-python
+      - name: Install poetry
+        uses: abatilo/actions-poetry@v2
+      - name: Setup a local virtual environment (if no poetry.toml file)
+        run: |
+          poetry config virtualenvs.create true --local
+          poetry config virtualenvs.in-project true --local
+      - uses: actions/cache@v3
+        name: Define a cache for the virtual environment based on the dependencies lock file
         with:
-          python-version: ${{ matrix.python-version }}
-          cache: "poetry"
-      - name: Check enviroment
+          path: ./.venv
+          key: venv-${{ hashFiles('poetry.lock') }}
+      - name: Check environment
         run: |
           python -V
           poetry --version
+      - name: Install the project dependencies
+        run: poetry install
 
-      - name: Install dependencies
-        run: |
-          poetry install
-          poetry add pyinstaller
-
-      - name: Build Windows executable
-        run: |
-          poetry run pyinstaller --onefile --windowed --icon=media/icon.ico --add-data "parfile/gui:parfile/gui" parfile/app.py --name parfile
+      # - name: Install dependencies
+      #   run: |
+      #     poetry install
+      #     poetry add pyinstaller
+      #
+      # - name: Build Windows executable
+      #   run: |
+      #     poetry run pyinstaller --onefile --windowed --icon=media/icon.ico --add-data "parfile/gui:parfile/gui" parfile/app.py --name parfile
 
