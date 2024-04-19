@@ -35,7 +35,6 @@ jobs:
     - name: Upload to Releases
       uses: actions/upload-release-asset@v1
       with:
-        upload_url: ${{ github.event.release.upload_url }}
         asset_path: ./dist/parfile.exe  # Adjust if the path to your built executable is different
         asset_name: parfile.exe
         asset_content_type: application/octet-stream
