@@ -8,20 +8,19 @@ on:
 jobs:
   build-and-release:
     runs-on: windows-latest
+    strategy:
+      matrix:
+        python-version: ["3.12"]
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.12
-
+      - uses: actions/checkout@v3
       - name: Install Poetry
-        run: |
-          pipx install poetry
-
+        run: pipx install poetry
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "poetry"
       - name: Check enviroment
         run: |
           python -V
@@ -36,20 +35,3 @@ jobs:
         run: |
           poetry run pyinstaller --onefile --windowed --icon=media/icon.ico --add-data "parfile/gui:parfile/gui" parfile/app.py --name parfile
 
-      - name: Create Release (Optional)  # Create a draft release (optional)
-        uses: nDrizzle/github-action-create-release@v1  # Optional action
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.sha }}  # Use commit SHA for tag (optional)
-          release_name: "Automatic Release (built on ${{ github.sha }})"  # Descriptive release name (optional)
-          body: "Built from commit ${{ github.sha }}"  # Optional release description (optional)
-          draft: true  # Set to true to create a draft release (optional)
-          prerelease: false  # Set to true for a pre-release (optional)
-
-      - uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
