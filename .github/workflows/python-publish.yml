@@ -9,6 +9,9 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+    outputs:
+      version: ${{ steps.step_version.outputs.version }}
+      upload_url: ${{ steps.step_upload_url.outputs.upload_url }}
 
     steps:
     - uses: actions/checkout@v2
@@ -35,6 +38,7 @@ jobs:
     - name: Upload to Releases
       uses: actions/upload-release-asset@v1
       with:
+        upload_url: ${{ needs.build.outputs.upload_url }}
         asset_path: ./dist/parfile.exe  # Adjust if the path to your built executable is different
         asset_name: parfile.exe
         asset_content_type: application/octet-stream
