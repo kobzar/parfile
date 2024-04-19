@@ -35,11 +35,6 @@ jobs:
           poetry install
           poetry add pyinstaller
 
-      # - name: Install dependencies
-      #   run: |
-      #     poetry install
-      #     poetry add pyinstaller
-      #
       # - name: Build Windows executable
       #   run: |
       #     poetry run pyinstaller --onefile --windowed --icon=media/icon.ico --add-data "parfile/gui:parfile/gui" parfile/app.py --name parfile
