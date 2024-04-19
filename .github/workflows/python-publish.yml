@@ -1,41 +1,57 @@
-name: Build and Release Windows Executable
+name: Build EXE (Windows)
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
-  build-and-release:
+  build:
     runs-on: windows-latest
-
     steps:
-      - uses: actions/checkout@v4
-      - name: Install Python
-        uses: actions/setup-python@v4
-        # see details (matrix, python-version, python-version-file, etc.)
-        # https://github.com/actions/setup-python
-      - name: Install poetry
-        uses: abatilo/actions-poetry@v2
-      - name: Setup a local virtual environment (if no poetry.toml file)
-        run: |
-          poetry config virtualenvs.create true --local
-          poetry config virtualenvs.in-project true --local
-      - uses: actions/cache@v3
-        name: Define a cache for the virtual environment based on the dependencies lock file
-        with:
-          path: ./.venv
-          key: venv-${{ hashFiles('poetry.lock') }}
-      - name: Check environment
-        run: |
-          python -V
-          poetry --version
-      - name: Install the project dependencies
-        run: |
-          poetry install
-          poetry add pyinstaller
+      - uses: actions/checkout@v3
 
-      # - name: Build Windows executable
-      #   run: |
-      #     poetry run pyinstaller --onefile --windowed --icon=media/icon.ico --add-data "parfile/gui:parfile/gui" parfile/app.py --name parfile
+      - name: Install Poetry
+        uses: siom79/poetry-installer@v1.1.8
+        with:
+          poetry-version: '1.1.16'
+
+      - name: Install Dependencies
+        run: poetry install
+
+      - name: Build EXE
+        run: poetry run pyinstaller --onefile --windowed --icon="media/icon.ico" --add-data "parfile/gui;parfile/gui" "parfile/app.py" --name "parfile"
+
+      - name: Upload Release Asset
+        uses: actions/upload-artifact@v3
+        with:
+          name: release
+          path: dist\parfile.exe
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest  # More flexibility for deployment steps
+    if: github.event_name == 'push' && github.base_ref == 'main'
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download Release Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: release
+
+      - name: Create GitHub Release (Optional)
+        uses: nlopez/release-action@v3.0.0
+        with:
+          tag_name: ${{ github.sha }}  # Or a custom version number
+          release_name: parfile v${{ github.sha }}
+          file: release/parfile.exe
+          body: |
+            This is an automated release built from commit ${{ github.sha }}.
+
+            **Download:** [parfile.exe](https://github.com/${{ github.repository }}/releases/download/v${{ github.sha }}/parfile.exe)  # Adjust URL based on your actual release strategy
+
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Encrypted release token
 
